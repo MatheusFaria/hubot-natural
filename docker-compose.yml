@@ -41,8 +41,7 @@ services:
   #     - mongo
 
   hubot-natural:
-    image: diegodorgam/hubot-natural:latest
-    #build: .
+    build: .
     restart: unless-stopped
     environment:
       - HUBOT_ADAPTER=rocketchat
@@ -55,7 +54,7 @@ services:
       - RESPOND_TO_DM=true
       - RESPOND_TO_LIVECHAT=true
       - LISTEN_ON_ALL_PUBLIC=false
-      - ROCKETCHAT_USER=catbot
+      - ROCKETCHAT_USER=botnat
       - ROCKETCHAT_PASSWORD=123456
       - ROCKETCHAT_AUTH=password
       - HUBOT_LOG_LEVEL=debug
