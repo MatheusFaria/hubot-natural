@@ -1,13 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-require('coffeescript/register');
-
-const { regexEscape, loadConfigfile } = require('../lib/common');
-const { getUserRoles, checkRole } = require('../lib/security');
+const security = require('../lib/security');
 const actionHandler = require('./action-handler');
 const classifier = require('./classifier');
 
@@ -52,22 +43,20 @@ var sendWithNaturalDelay = function(msgs, elapsed) {
 
 const createMatch = (text, pattern) => text.match(new RegExp(`\\b${pattern}\\b`, 'i'));
 
-module.exports = function(_config, robot) {
-  global.config = _config;
+module.exports = function(config, robot) {
+  security.loadUserRoles(robot);
 
-  global.usersAndRoles = getUserRoles(robot);
-
-  if (!(global.config.interactions != null ? global.config.interactions.length : undefined)) {
+  if (!(config.interactions != null ? config.interactions.length : undefined)) {
     robot.logger.warning('No interactions configured.');
     return;
   }
-  if (!global.config.trust) {
+  if (!config.trust) {
     robot.logger.warning('No trust level configured.');
     return;
   }
 
-  actionHandler.registerActions(global.config);
-  classifier.train();
+  actionHandler.registerActions(config);
+  classifier.train(config);
 
   return robot.hear(/(.+)/i, function(res) {
     let actionName;

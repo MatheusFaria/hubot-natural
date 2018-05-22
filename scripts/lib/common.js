@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 const fs = require('fs');
 const yaml = require('js-yaml');
 
@@ -47,7 +40,7 @@ common.sendMessages = function(messages, msg, variables) {
   messages = messages.map(message => common.msgVariables(message, msg, variables));
   return msg.sendWithNaturalDelay(messages);
 };
-  
+
 var getYAMLFiles = function(filepath, recursive) {
   if (recursive == null) { recursive = false; }
   const listFile = fs.readdirSync(filepath);

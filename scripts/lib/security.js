@@ -1,8 +1,9 @@
 const security = {};
 
-security.getUserRoles = function(robot) {
-  const usersAndRoles = {};
-  robot.adapter.chatdriver.callMethod('getUserRoles').then(function(users) {
+usersAndRoles = {};
+
+security.loadUserRoles = function(robot) {
+  robot.adapter.callMethod('getUserRoles').then(function(users) {
     users.forEach(function(user) {
       user.roles.forEach(function(role) {
         if (typeof usersAndRoles[role] === 'undefined') {
@@ -17,8 +18,8 @@ security.getUserRoles = function(robot) {
 
 
 security.checkRole = function(msg, role) {
-  if (typeof global.usersAndRoles[role] !== 'undefined') {
-    if (global.usersAndRoles[role].indexOf(msg.envelope.user.name) === -1) {
+  if (typeof usersAndRoles[role] !== 'undefined') {
+    if (usersAndRoles[role].indexOf(msg.envelope.user.name) === -1) {
       return false;
     } else {
       return true;

@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-require('coffeescript/register');
-
 const { msgVariables, stringElseRandomKey } = require('../lib/common');
 
 // interpolate a string to replace {{ placeholder }} keys with passed object values
@@ -15,7 +7,7 @@ String.prototype.interp = function(values){
     return this.replace(/{{(.*)}}/g,
         (ph, key)=> values[key] || '');
   };
-            
+
 class Rest {
   constructor(interaction) {
     this.process = this.process.bind(this);
@@ -50,10 +42,10 @@ class Rest {
     const { successmsg } = this.interaction.rest;
 
     let { headers } = this.interaction.rest;
-    
-    headers = 
+
+    headers =
         {'Content-Type': 'application/json'};
-    
+
     return msg.http(this.interaction.rest.url)
         .headers(headers)[method](data)(function(err, response, body) {
             if (response.statusCode !== 200) {

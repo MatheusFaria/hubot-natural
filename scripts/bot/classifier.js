@@ -1,13 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS103: Rewrite code to no longer use __guard__
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-require('coffeescript/register');
-
 const natural = require('natural');
 
 const classifier = {};
@@ -21,6 +11,8 @@ if (lang !== 'en') {
 }
 
 const actionHandler = require('./action-handler');
+
+let config = {}
 
 // Classifier that holds all root level interactions
 let root_classifier = {};
@@ -56,7 +48,7 @@ var classifyInteraction = function(interaction, classifier) {
       PorterStemmer
     );
     for (var nextInteractionName of Array.from(interaction.next.interactions)) {
-      const nextInteraction = global.config.interactions.find(n => n.name === nextInteractionName);
+      const nextInteraction = config.interactions.find(n => n.name === nextInteractionName);
       if ((nextInteraction == null)) {
         console.log('No valid interaction for', nextInteractionName);
         continue;
@@ -67,13 +59,15 @@ var classifyInteraction = function(interaction, classifier) {
   }
 };
 
-classifier.train = function() {
+classifier.train = function(_config) {
+  config = _config;
+
   console.log('Processing interactions');
   console.time('Processing interactions (Done)');
 
   root_classifier = new natural.LogisticRegressionClassifier(PorterStemmer);
 
-  for (let interaction of Array.from(global.config.interactions)) {
+  for (let interaction of Array.from(config.interactions)) {
     if ((interaction.level == null) ||
         (Array.isArray(interaction.level) &&
          interaction.level.includes(ROOT_LEVEL_NAME)) ||
@@ -157,13 +151,13 @@ classifier.processMessage = function(res, msg) {
   let error_node_name, node_name;
   const context = getContext(res);
   let currentClassifier = root_classifier;
-  let { trust } = global.config;
+  let { trust } = config;
   let interaction = undefined;
   const debugMode = isDebugMode(res);
   console.log('context ->', context);
 
   if (context) {
-    interaction = global.config.interactions.find(interaction => interaction.name === context);
+    interaction = config.interactions.find(interaction => interaction.name === context);
     if ((interaction != null) && ((interaction.next != null ? interaction.next.classifier : undefined) != null)) {
       currentClassifier = interaction.next.classifier;
       if (interaction.next.trust != null) {
@@ -178,7 +172,7 @@ classifier.processMessage = function(res, msg) {
 
   if (debugMode) {
     const newMsg = buildClassificationDebugMsg(res, classifications);
-    robot.adapter.chatdriver.customMessage(newMsg);
+    robot.adapter.customMessage(newMsg);
   }
 
   if (classifications[0].value >= trust) {
@@ -186,7 +180,7 @@ classifier.processMessage = function(res, msg) {
     clearErrors(res);
     [node_name, sub_node_name] = Array.from(classifications[0].label.split('|'));
     console.log({ node_name, sub_node_name });
-    const int = global.config.interactions.find(interaction => interaction.name === node_name);
+    const int = config.interactions.find(interaction => interaction.name === node_name);
     if (int.classifier != null) {
       int.classifier.getClassifications(msg);
     }
@@ -213,7 +207,7 @@ classifier.processMessage = function(res, msg) {
     }
   }
 
-  const currentInteraction = global.config.interactions.find(interaction => (interaction.name === node_name) || (interaction.name === error_node_name));
+  const currentInteraction = config.interactions.find(interaction => (interaction.name === node_name) || (interaction.name === error_node_name));
 
   if ((currentInteraction == null)) {
     clearErrors(res);
